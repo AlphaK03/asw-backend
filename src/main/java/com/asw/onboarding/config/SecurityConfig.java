@@ -37,8 +37,10 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
             "http://localhost:5173",
-            "https://asw-frontend-cg0i8yfqk-alphak03s-projects.vercel.app"
+            "https://asw-frontend.vercel.app", // Por si tienes dominio limpio
+            "https://asw-frontend-hwf7k8e0f-alphak03s-projects.vercel.app" // Tu URL actual
         ));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true); // Si usás cookies o tokens
