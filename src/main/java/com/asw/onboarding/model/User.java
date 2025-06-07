@@ -1,5 +1,12 @@
+package com.asw.onboarding.model;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.Set;
+
 @Entity
-@Table(name = "\"user\"")
+@Table(name = "\"user\"")  // comillas dobles para escapar la palabra reservada en PostgreSQL
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
