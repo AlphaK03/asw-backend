@@ -1,11 +1,5 @@
-package com.asw.onboarding.model;
-
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.util.Set;
-
 @Entity
+@Table(name = "\"user\"")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
