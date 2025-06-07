@@ -2,7 +2,12 @@ package com.asw.onboarding.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -16,37 +21,43 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors() // Habilita CORS con configuración personalizada
-            .and()
+            .cors().and()
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                // 🔓 Rutas API públicas
+                .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/departments/**").permitAll()
                 .requestMatchers("/api/onboardings/**").permitAll()
                 .requestMatchers("/api/steps/**").permitAll()
-                .requestMatchers("/api/auth/**").permitAll()
-                // 🔐 Rutas protegidas (si las tuvieras)
                 .anyRequest().authenticated()
             );
+
         return http.build();
     }
 
-    // 🎯 Configuración de CORS para permitir acceso desde el frontend en Vite
+    // Solo para pruebas, NO usar NoOp en producción
+    @Bean
+    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance()); // ⚠️ Sin encriptar
+        return new ProviderManager(provider);
+    }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
             "http://localhost:5173",
-            "https://asw-frontend.vercel.app", // Por si tienes dominio limpio
-            "https://asw-frontend-hwf7k8e0f-alphak03s-projects.vercel.app" // Tu URL actual
+            "https://asw-frontend.vercel.app",
+            "https://asw-frontend-hwf7k8e0f-alphak03s-projects.vercel.app"
         ));
-
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(true); // Si usás cookies o tokens
+        config.setExposedHeaders(List.of("Authorization"));
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config); // Aplica globalmente
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 }
